@@ -1,0 +1,3 @@
+#!/bin/sh
+CLASSPATH="`dirname $0`/../dist/Priorities.jar"
+java -Xmx2g -classpath $CLASSPATH priorities.Main "$@"
