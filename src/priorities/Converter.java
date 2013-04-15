@@ -1,3 +1,19 @@
+/**
+ *  Copyright 2012-2013 University Of Southern California
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package priorities;
 import java.io.File;
 import java.io.IOException;
@@ -19,21 +35,28 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * Converter selects an implementation of algorithm 
+ * 
  * @author Weiwei Chen
  */
 public class Converter {
     
-    
+    /** The mapping from the name of a node to that node. */
     private  Map<String, AbstractNode> jobMap;
-    //private  Map<AbstractNode, String> idMap;
+
+    /**
+     * Initialize a Converter object
+     */
     public Converter()
     {
         jobMap = new HashMap<String, AbstractNode>();
-        //idMap  = new HashMap< AbstractNode, String>(); 
     }
     
-    
+    /**
+     * Gets the node. 
+     * @param id the name of the node
+     * @return the node object
+     */
     private  AbstractNode getElement(String id){
         if(jobMap!=null && jobMap.size()>0){
             return (AbstractNode)jobMap.get(id);
@@ -41,14 +64,19 @@ public class Converter {
         return null;
     }
     
-
+    /**
+     * The main function of Converter
+     * 
+     * @param args argument to be parsed
+     */
     public void execute(String[] args){
         long startTime = System.currentTimeMillis();
-                
+        /**Parser arguments and initialize a ConverterOptions object. */
         ConverterOptions options = parseCommandLineArguments(args);
         System.out.println("Parsing Files ...");
+        /**Parsing DAX files. */
         parseXmlFile(options);
-        
+        /**Calculates how long this program takes. */
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
 //        int hrs = (int)(duration/1000/3600);
@@ -60,6 +88,10 @@ public class Converter {
                 TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.MILLISECONDS.toMinutes(duration)*60);
         System.out.println("The program takes " + outStr);
     }
+    /**
+     * Parse a DAX file
+     * @param options all parameters
+     */
     public void parseXmlFile(ConverterOptions options){
         DocumentBuilderFactory dbf  = DocumentBuilderFactory.newInstance();
         try{
@@ -68,6 +100,8 @@ public class Converter {
             //Document doc = db.parse("/Users/chenweiwei/Downloads/store/montage/dags/dag.xml");
             //Document doc = db.parse("/Users/chenweiwei/NetBeansProjects/Priorities/examples/montage/0.5degree/dag.xml");
             Element docEle= doc.getDocumentElement();
+            
+            /** First, capture all the job information. */
             NodeList nl = docEle.getElementsByTagName("job");
             
             if(nl != null && nl.getLength() > 0){
@@ -76,11 +110,11 @@ public class Converter {
                     String id = el.getAttribute("id");
                     AbstractNode node = new AbstractNode(el);
                     jobMap.put(id, node);
-                    //System.out.println("id= " + node.getNode().getAttribute("id"));
-                    //idMap.put(node, id);
+
                 }
             }
-             
+            
+            /** Second, capture all the dependencies information. */
             NodeList cl = docEle.getElementsByTagName("child");
             if(cl!=null && cl.getLength()>0){
                 for (int i = 0; i < cl.getLength(); i++){
@@ -101,7 +135,7 @@ public class Converter {
             
             
             System.out.println("Parsing XML file is done");
-            //new DFSParser(jobMap, doc).run();
+            /** Now add priorities. */
             if(options.getAlgorithm().equals("backward")){
                 new Backward(jobMap,  doc, options).run();
             }else if(options.getAlgorithm().equals("dfs")){
@@ -116,11 +150,10 @@ public class Converter {
             
             
 
-
-            TransformerFactory tFactory =
-            TransformerFactory.newInstance();
+            
+            TransformerFactory tFactory = TransformerFactory.newInstance();
             Transformer transformer = tFactory.newTransformer();
-
+            /** Output new DAX files. */
             DOMSource source = new DOMSource(doc);
             File file = new File(options.getOutputDAX());
             //File file = new File("/Users/chenweiwei/Downloads/store/montage/dags/newdag.xml");
@@ -142,11 +175,13 @@ public class Converter {
     }
     
     
-    
+    /**
+     * Parse Arguments 
+     * @param args arguments of the Main class
+     * @return ConverterOptions 
+     */
     public ConverterOptions parseCommandLineArguments( String[] args ){
         
-
-        //store the args with which converter was invoked
         
         ConverterOptions options = new ConverterOptions();
         options.setOriginalArgString( args );
@@ -164,13 +199,13 @@ public class Converter {
                 case 'o'://output dax
                     options.setOutputDAX(args[++i]);
                     break;
-                case 'a':
+                case 'a'://algorithm used
                     options.setAlgorithm(args[++i]);
                     break;
-                case 'r':
+                case 'r'://whether reverse the priorities from descending order to ascending order
                     options.setReverse(true);
                     break;
-                case 'd':
+                case 'd'://the maximum depth used in Backward algorithm
                     options.setDepth(Integer.parseInt(args[++i]));
                     break;
                 case 'm':
@@ -179,7 +214,7 @@ public class Converter {
                 case 'p':
                     options.setPriority(args[++i]);
                     break;
-                case 'v':
+                case 'v'://version information
                     System.out.println("Version " + options.getVersion());
                     break;
                 case 'h':
@@ -209,7 +244,7 @@ public class Converter {
                 String text =
           "\n $Id: Main.java 4797 2012-06-05 23:42:48Z Weiwei $ " +
           "\n Usage : dax-converter  -i <dax file> -o <dax file> -a algorithm" +
-          " [-r reverse] -[d depth]";
+          " [-r reverse] -[d max depth]";
 
         System.out.println(text);
     }

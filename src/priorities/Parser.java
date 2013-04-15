@@ -1,3 +1,19 @@
+/**
+ *  Copyright 2012-2013 University Of Southern California
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package priorities;
 
 import java.io.BufferedReader;
@@ -15,21 +31,23 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- *
+ * A basic implementation of parser
  * @author Weiwei Chen
  */
 public class Parser {
     
-    /**
-     * jobMap should be ok
-     */
+
+    /** The map from the name to the object. */
     private Map<String, AbstractNode> jobMap;
-    //private Map<AbstractNode, String> idMap;//maybe not useful
+    /** DOM document object. */
     private Document doc;
+    /** Root node. */
     private AbstractNode root;
+    /** Sink node. */
     private AbstractNode sink;
+    /** All parameters. */
     private ConverterOptions options;
-    
+    /** Temp file. */
     private File tmpMapFile ;
     /**
      * parentMap must be scalable
@@ -37,11 +55,16 @@ public class Parser {
     private Map<AbstractNode, ArrayList> parentMap 
             = new HashMap<AbstractNode, ArrayList>();
 
+    /**
+     * Initialize a Parser object
+     * @param jobMap the job map
+     * @param doc the DOM document object
+     * @param options the arguments
+     */
     public Parser(Map jobMap, Document doc, ConverterOptions options)
     {
         this.jobMap = jobMap;
         
-        //System.out.println("size is" + idMap.size());
         this.doc    = doc;
         this.options= options;
         try{
@@ -52,13 +75,22 @@ public class Parser {
         }
     }
     
-    
+    /**
+     * Gets the name of a node
+     * @param node the node
+     * @return the name
+     */
     public String getId(AbstractNode node){
         String id = "";
         id = node.getNode().getAttribute("id");
         return id;
     }
     
+    /**
+     * Gets the node 
+     * @param id the name of the node
+     * @return the node
+     */
     public AbstractNode getNode(String id){
         AbstractNode node = null;
         try{
@@ -73,7 +105,9 @@ public class Parser {
         
         return node;
     }
-    
+    /**
+     * Delete temp file
+     */
     public void deleteTmpFiles(){
         if(tmpMapFile!=null && tmpMapFile.exists()){
             //delete temp files
@@ -83,18 +117,36 @@ public class Parser {
             }
         }
     }
-    
+    /**
+     * Sets the options
+     * @param options 
+     */
     public void setOptions(ConverterOptions options){
         this.options = options;
     }
+    /**
+     * Gets the options 
+     * @return options
+     */
     public ConverterOptions getOptions(){
         return this.options;
     }
+    /**
+     * Add a priority to a node
+     * @param node the node 
+     * @param priority the priority
+     */
     protected void addPriority(AbstractNode node, String priority)
     {
         addPriority(node.getNode(), priority, doc);
     }
     
+    /**
+     * Add a priority to a Element
+     * @param el the element
+     * @param priority the priority
+     * @param doc  the document object
+     */
     private void addPriority(Element el , String priority, Document doc)
     {
         
@@ -116,7 +168,11 @@ public class Parser {
          el.insertBefore(nel, cld);
     }
 
-    
+    /**
+     * Sets the check point
+     * @param node the node
+     * @param value true or false
+     */
     public void setCheck(AbstractNode node, boolean value){
         node.hasChecked = value;
         for(Iterator it = node.getParents().iterator();it.hasNext();){
@@ -124,7 +180,9 @@ public class Parser {
             setCheck(pNode, value);
         }
     }
-    
+    /**
+     * This is specially designed for Montage workflow because Montage has duplicate dependencies
+     */
     public void removeDuplicateMontage(){
 
         List jobList = new ArrayList(jobMap.values());
@@ -160,14 +218,20 @@ public class Parser {
         
     }
     
-    
+    /**
+     * using DFS to check if it has duplicate but this takes much time
+     * @param node 
+     */
     public void removeDuplicate(AbstractNode node){
         //use DFS to check if has been check
         
         //if only one doesn't need to check
-        if(node.hasChecked)return;
-        if(node.getParents().size() == 1)
+        if(node.hasChecked){
+            return;
+        }
+        if(node.getParents().size() == 1){
             removeDuplicate(node.getParents().get(0));
+        }
         for(int i = 0; i < node.getParents().size(); i ++){
             AbstractNode pNode = (AbstractNode)node.getParents().get(i);
             
@@ -187,7 +251,11 @@ public class Parser {
         node.hasChecked = true;
     }
     
-    
+    /**
+     * Save all objects to files
+     * @param node the AbstractNode object
+     * @param list the list of AbstractNode
+     */
     private void saveParentsToFile(AbstractNode node, ArrayList list){
         //similar to parentMap.put(node, list)
         
@@ -216,8 +284,12 @@ public class Parser {
             e.printStackTrace();
         }
     }
+    /**
+     * Gets parents from files
+     * @param aNode 
+     * @return 
+     */
     private ArrayList getParentsFromFile(AbstractNode aNode){
-        //if id == "" return empty list
         ArrayList list = null;
         String id = getId(aNode);
         if(id.equals("")){
@@ -262,7 +334,11 @@ public class Parser {
         }
         return null;
     }
-    
+    /**
+     * 
+     * @param srcList
+     * @param destList 
+     */
     private void addAllWithoutDuplicate(List srcList, List destList){
         if(srcList!=null && destList != null){
             for(Iterator it = destList.iterator(); it.hasNext(); ){
@@ -274,14 +350,10 @@ public class Parser {
             }
         }
     }
-    /*
-     * Should not use too much memory here
-     */
+
     
     public ArrayList getParents(AbstractNode node){
-//        if(parentMap.containsKey(node)){
-//            return (ArrayList)parentMap.get(node);
-//        }
+
         
         ArrayList newList = null;
         if(options.getJobMapMode().equals("file")){
@@ -299,19 +371,16 @@ public class Parser {
             System.out.println("Error in job map mode");
             System.exit(1);
         }
-        //ArrayList newList = null;
         if(newList!=null){
             return newList;//it's ok if it's empty but not null
         }else{
         
             ArrayList list = new ArrayList<AbstractNode>();
             
-            //list.addAll(node.getParents());
             addAllWithoutDuplicate(list, node.getParents());
             for(Iterator it  = node.getParents().iterator(); it.hasNext(); ){
                 AbstractNode pNode = (AbstractNode)it.next();
                 ArrayList pList = (ArrayList)getParents(pNode);
-                //list.addAll(pList);
                 addAllWithoutDuplicate(list, pList);
             }
             if(options.getJobMapMode().equals("memory")){
