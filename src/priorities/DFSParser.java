@@ -21,15 +21,24 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- *
+ * Iterate through dax with DFS algorithm
  * @author Weiwei Chen
  */
 public class DFSParser extends Parser{
     
+    /**
+     * Initialize a Backward object
+     * @param jobMap the job map
+     * @param doc the DOM document
+     * @param options parameters
+     */
     public DFSParser (Map jobMap, Document doc, ConverterOptions options){
         super( jobMap,   doc, options);
     }
-    
+        
+    /**
+     * The main function
+     */
     @Override
     public void run()
     {
@@ -48,10 +57,17 @@ public class DFSParser extends Parser{
         DFS(root, 0);
         clean();//not necessary but just make it complete
     }
-    
+    /**
+     * Iterate through the workflow
+     * @param node the root node
+     * @param step the steps
+     * @return 
+     */
     private int DFS(AbstractNode node, int step)
     {
-        if(node.hasChecked)return step;
+        if(node.hasChecked){
+            return step;
+        }
         
         step ++;
         

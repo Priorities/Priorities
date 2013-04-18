@@ -335,9 +335,9 @@ public class Parser {
         return null;
     }
     /**
-     * 
-     * @param srcList
-     * @param destList 
+     * All the elements in destList to srcList
+     * @param srcList the srcList
+     * @param destList the destList
      */
     private void addAllWithoutDuplicate(List srcList, List destList){
         if(srcList!=null && destList != null){
@@ -351,7 +351,11 @@ public class Parser {
         }
     }
 
-    
+    /**
+     * Gets the parents of a node
+     * @param node the node
+     * @return the parents of the node
+     */
     public ArrayList getParents(AbstractNode node){
 
         
@@ -396,6 +400,10 @@ public class Parser {
 
     
     //root is not part of jobMap
+    /**
+     * Returns (if not exist creates one) the root node
+     * @return the root node
+     */
     public AbstractNode getRoot(){
         if(root==null){
             Element el = doc.createElement("root");
@@ -415,6 +423,10 @@ public class Parser {
         }
         return root;
     }
+    /**
+     * Returns the sink node
+     * @return the sink node
+     */
     public AbstractNode getSink(){
         if(sink==null){
             Element el = doc.createElement("sink");
@@ -434,6 +446,9 @@ public class Parser {
         return sink;
     }
     
+    /**
+     * The main function
+     */
     public void run(){
           
        for(Iterator it = jobMap.values().iterator(); it.hasNext();){
@@ -444,7 +459,9 @@ public class Parser {
         }
             
     }
-    
+    /**
+     * Clean the root and sink node
+     */
     public void clean(){
         if(root!=null){
             if(root.getNode().hasAttribute("id")){
@@ -480,7 +497,10 @@ public class Parser {
             sink = null;
         }
     }
-    
+    /**
+     * Returns the job map
+     * @return the job map
+     */
     public Map getJobMap(){
         return this.jobMap;
     }

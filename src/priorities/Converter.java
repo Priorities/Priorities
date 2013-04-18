@@ -233,6 +233,7 @@ public class Converter {
             //that is fine
         }
         else{
+            printVersion();
             throw new RuntimeException("Incorrect option or option usage " );
             
         }
@@ -244,7 +245,7 @@ public class Converter {
                 String text =
           "\n $Id: Main.java 4797 2012-06-05 23:42:48Z Weiwei $ " +
           "\n Usage : dax-converter  -i <dax file> -o <dax file> -a algorithm" +
-          " [-r reverse] -[d max depth]";
+          " [-r reverse] [-d max depth]";
 
         System.out.println(text);
     }

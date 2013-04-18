@@ -21,15 +21,24 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- *
+ * Use Backward algorithm to parse a workflow
  * @author Weiwei Chen
  */
 public class Backward extends Parser{
     
+    /**
+     * Initialize a Backward object
+     * @param jobMap the job map
+     * @param doc the DOM document
+     * @param options parameters
+     */
     public Backward (Map jobMap,  Document doc, ConverterOptions options){
         super( jobMap, doc, options);
     }
     
+    /**
+     * The main function
+     */
     @Override
     public void run()
     {
@@ -51,7 +60,13 @@ public class Backward extends Parser{
     
 
     
-    //step now is the max priority of this subtree
+    /**
+     * Iterate through the workflow backward
+     * @param node the root
+     * @param step the max priority of this subtree
+     * @param depth the max depth
+     * @return the step
+     */
     private int Backward(AbstractNode node, int step, int depth){
         
         if(node.hasChecked){
